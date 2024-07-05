@@ -9,8 +9,8 @@ data "vsphere_datastore_cluster" "datastore_cluster" {
 }
 
 data "vsphere_datastore" "datastore" {
-  count         = var.datastore != "" && var.datastore_cluster == "" ? 1 : 0
-  name          = var.datastore
+  count         = var.datastores != null ? length(var.datastores) : (var.datastore != null && var.datastore != "" && var.datastore_cluster == "" ? 1 : 0)
+  name          = var.datastores != null ? var.datastores[count.index] : (var.datastore != null ? var.datastore : "")
   datacenter_id = data.vsphere_datacenter.dc.id
 }
 
@@ -93,8 +93,8 @@ resource "vsphere_virtual_machine" "vm" {
   enable_disk_uuid        = var.content_library == null && var.enable_disk_uuid == null ? data.vsphere_virtual_machine.template[0].enable_disk_uuid : var.enable_disk_uuid
   storage_policy_id       = var.storage_policy_id
 
-  datastore_cluster_id = var.datastore_cluster != "" ? data.vsphere_datastore_cluster.datastore_cluster[0].id : null
-  datastore_id         = var.datastore != "" ? data.vsphere_datastore.datastore[0].id : null
+  datastore_cluster_id   = var.datastore_cluster != "" ? data.vsphere_datastore_cluster.datastore_cluster[0].id : null
+  datastore_id           = var.datastores != null || var.datastore != null ?  data.vsphere_datastore.datastore[0].id : null
 
   num_cpus               = var.cpu_number
   num_cores_per_socket   = var.num_cores_per_socket

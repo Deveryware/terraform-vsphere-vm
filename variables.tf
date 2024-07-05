@@ -28,6 +28,12 @@ variable "datastore" {
   default     = ""
 }
 
+variable "datastores" {
+  description = "List of datastores to deploy the VMs."
+  type        = list(string)
+  default     = null
+}
+
 variable "data_disk" {
   description = "Storage data disk parameter, example"
   type        = map(map(string))
