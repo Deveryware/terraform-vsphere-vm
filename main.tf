@@ -94,8 +94,14 @@ resource "vsphere_virtual_machine" "vm" {
   storage_policy_id       = var.storage_policy_id
 
   datastore_cluster_id   = var.datastore_cluster != "" ? data.vsphere_datastore_cluster.datastore_cluster[0].id : null
-  datastore_id           = var.datastores != null || var.datastore != null ?  data.vsphere_datastore.datastore[0].id : null
+  datastore_id           = var.datastores != null ? data.vsphere_datastore.datastore[count.index].id : (var.datastore != null ?  data.vsphere_datastore.datastore[0].id : null)
 
+  lifecycle {
+    precondition {
+      condition = var.datastores == null || (length(var.datastores) == length(var.disk_size_gb))
+      error_message = "The 'datastores' array size must be the same size as 'disk_size_gb' array."
+    }
+  }
   num_cpus               = var.cpu_number
   num_cores_per_socket   = var.num_cores_per_socket
   cpu_hot_add_enabled    = var.cpu_hot_add_enabled
